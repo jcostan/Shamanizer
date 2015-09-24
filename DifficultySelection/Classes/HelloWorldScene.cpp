@@ -1,6 +1,7 @@
 #include "HelloWorldScene.h"
 #include "cocostudio/CocoStudio.h"
 #include "ui/CocosGUI.h"
+#include "Batalha.h"
 
 USING_NS_CC;
 
@@ -32,40 +33,34 @@ bool HelloWorld::init()
         return false;
     }
     
-    auto rootNode = CSLoader::createNode("MainScene.csb");
-
+    auto rootNode = CSLoader::createNode("CenaPrincipal.csb");
+    
     addChild(rootNode);
-
-
-	Size visibleSize = Director::getInstance()->getVisibleSize();
-	Vec2 origin = Director::getInstance()->getVisibleOrigin();
-	auto oca = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("Oca1"));
-	auto vbutton = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("BtnsBatalha")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("TotemAzul"));
-	if (vbutton)
-	{
-		vbutton->addClickEventListener([=](Ref *){
-
-			CCLOG("Pressed ");
-			auto label = Label::createWithTTF("Shamanizer: O ataque das sombras", "fonts/arial.ttf", 18);
-
-			// position the label on the center of the screen
-			label->setPosition(Vec2(origin.x + visibleSize.width / 2,
-				origin.y + visibleSize.height - label->getContentSize().height));
-			label->setColor(Color3B(255, 255, 255));
-
-			// add the label as a child to this layer
-			this->addChild(label, 1);
-		});
-	}
-
-	if (oca)
-	{
-		oca->addClickEventListener([=](Ref *){
-			auto playerLvl = static_cast< cocos2d::ui::Text*>(rootNode->getChildByName("ScrollView_1")->getChildByName("ProjectNode_1")->getChildByName("TopBar")->getChildByName("NamePanel_4")->getChildByName("Stars_5")->getChildByName("StarsCount_4"));
-			playerLvl->setText("5");
-		});
-	}
-
-
+    
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+    
+    auto bt = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ProjectNode_1")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("BtnAltar_4"));
+    
+    auto bt1 = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ProjectNode_1")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("BtnLvl_6"));
+    
+    auto bt2 = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ProjectNode_1")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("BtnPVP_8"));
+    
+    auto bt3 = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ProjectNode_1")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("BtnShop_10"));
+    
+    auto bt4 = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ProjectNode_1")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("BtnFrd_12"));
+    
+    auto bt5 = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ProjectNode_1")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("BtnSetting_14"));
+    
+    if (bt) {
+        
+        bt->addClickEventListener([=] (Ref *) {
+            
+            CCLOG("Pressed ");
+            auto scene = Batalha::createScene();
+            Director::getInstance()->replaceScene(TransitionFade::create(0.7, scene, Color3B(0,0,0)));
+        });
+    }
+    
     return true;
 }

@@ -31,9 +31,9 @@
     <Item Key="TabsParamsKey">
       <Value ctype="TabsInfo">
         <OpenedDocuments>
-          <FilePathData Path="Layer.csd" />
+          <FilePathData Path="AltarScene.csd" />
         </OpenedDocuments>
-        <ActiveDocument Path="Layer.csd" />
+        <ActiveDocument Path="AltarScene.csd" />
       </Value>
     </Item>
   </Properties>

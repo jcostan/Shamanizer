@@ -24,23 +24,10 @@
           <Image Name="Cn20.png" />
           <Image Name="Cn21.png" />
         </Folder>
-        <Folder Name="DifficultySelection">
-          <Image Name="DS01.png" />
-          <Image Name="DS02.png" />
-          <Image Name="DS03.png" />
-          <Image Name="DS05.png" />
-          <Image Name="DS07.png" />
-          <Image Name="DS08.png" />
-          <Image Name="DS09.png" />
-          <Image Name="DS10.png" />
-          <Image Name="DS11.png" />
-          <Image Name="DS12.png" />
-          <Image Name="DS13.png" />
-          <Image Name="DS15.png" />
-          <Image Name="DS16.png" />
-        </Folder>
-        <Project Name="Layer.csd" Type="Layer" />
+        <Project Name="PlayerStats.csd" Type="Layer" />
         <Project Name="MainScene.csd" Type="Scene" />
+        <Project Name="MainMenu.csd" Type="Layer" />
+        <Project Name="AltarScene.csd" Type="Node" />
       </RootFolder>
     </Group>
   </SolutionFolder>
