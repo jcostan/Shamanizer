@@ -2,6 +2,8 @@
 
 #include "cocos2d.h"
 
+#include "ui/CocosGUI.h"
+
 using namespace cocos2d;
 
 class Batalha : public Layer
@@ -45,7 +47,8 @@ private:
     int initialPosiTouch[2];
     int currentPosiTouch[2];
     bool isTouchDown = false;
-    
+	void ConfigOcas();
+	ui::Button* ocas[4];
     //Node* rootNode;
 
 protected:

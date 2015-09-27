@@ -1,11 +1,9 @@
 #include "Batalha.h"
 #include "HelloWorldScene.h"
 #include "Vila.h"
-
 #include "cocostudio/CocoStudio.h"
-#include "ui/CocosGUI.h"
-
 USING_NS_CC;
+
 
 Scene* Batalha::createScene()
 {
@@ -40,31 +38,26 @@ bool Batalha::init()
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     
-    auto oca = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("Oca1"));
-    auto vbutton = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("BtnsBatalha")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("TotemAzul"));
+	ConfigOcas();
+
+    auto totemAzul = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("BtnsBatalha")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("TotemAzul"));
+	auto magiaFogo = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("BtnsBatalha")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("MagiaFogo"));
     
-    if (vbutton)
+	if (magiaFogo)
+	{
+		magiaFogo->addClickEventListener([=](Ref *){
+			configMagicSprites();
+		});
+	}
+
+    if (totemAzul)
     {
-        vbutton->addClickEventListener([=](Ref *){
-            
-            CCLOG("Pressed ");
-            auto label = Label::createWithTTF("Shamanizer: O ataque das sombras", "fonts/arial.ttf", 18);
-            
-            // position the label on the center of the screen
-            label->setPosition(Vec2(origin.x + visibleSize.width / 2,
-                                    origin.y + visibleSize.height - label->getContentSize().height));
-            label->setColor(Color3B(255, 255, 255));
-            
+        totemAzul->addClickEventListener([=](Ref *){
+			auto tAzul = Sprite::create("totemAzul.png");
+			tAzul->setPosition(Vec2(visibleSize.width / 0.7f, visibleSize.height / 2 + origin.y));
+			tAzul->setScale(0.5,0.5);
             // add the label as a child to this layer
-            this->addChild(label, 1);
-        });
-    }
-    
-    if (oca)
-    {
-        oca->addClickEventListener([=](Ref *){
-            auto playerLvl = static_cast< cocos2d::ui::Text*>(rootNode->getChildByName("ScrollView_1")->getChildByName("ProjectNode_1")->getChildByName("TopBar")->getChildByName("NamePanel_4")->getChildByName("Stars_5")->getChildByName("StarsCount_4"));
-            playerLvl->setText("5");
+			this->getChildByName("rootNode")->getChildByName("ScrollView_1")->addChild(tAzul, 1);
         });
     }
     
@@ -74,13 +67,13 @@ bool Batalha::init()
     
     // position the sprite on the center of the screen
     player->setPosition(Vec2(visibleSize.width / 2.5 + origin.x, visibleSize.height / 2 + origin.y));
-    shadow->setPosition(Vec2(visibleSize.width / 1.5 + origin.x, visibleSize.height / 2 + origin.y));
+    shadow->setPosition(Vec2(visibleSize.width * 1.5 + origin.x, visibleSize.height / 2 + origin.y));
     
-    player->setScale(visibleSize.width*.001, visibleSize.height*.0013);
-    shadow->setScale(visibleSize.width*.0008, visibleSize.height*.001);
+    player->setScale(visibleSize.width*.0005, visibleSize.height*.00065);
+    shadow->setScale(visibleSize.width*.0004, visibleSize.height*.0005);
     
     nodeMagic = DrawNode::create();
-    nodeMagic->setName("andrei");
+    nodeMagic->setName("magicbrush");
     
     // add the sprite as a child to this layer
     
@@ -109,7 +102,7 @@ void Batalha::configBrush()
 
 void Batalha::configMagicSprites()
 {
-    fogo = Sprite::create("fire_sheet.png");
+    fogo = Sprite::create("magiaFogo.png");
     fogo->setPosition(Vec2(player->getPosition().x + player->getPosition().x / 2, player->getPosition().y));
     fogo->setScale(1.3);
     
@@ -117,7 +110,7 @@ void Batalha::configMagicSprites()
     
     fogo->runAction(moveBy);
     
-    this->addChild(fogo, 5);
+	this->getChildByName("rootNode")->getChildByName("ScrollView_1")->addChild(fogo, 5);
 }
 
 void Batalha::configUI()
@@ -172,10 +165,13 @@ void Batalha::update(float delta){
 		for (int i = 0; i < shadows.size(); i++) {
 			auto position = shadows.at(i)->getPosition();
 
-			if (position.x < 0 - (shadows.at(i)->getBoundingBox().size.width / 2)) {
+			if (position.x < Director::getInstance()->getVisibleSize().width*0.8) {
 				//Ele saiu da tela, deve ir pra outra(e dominar uma casinha)
 				//A linha abaixo faz ele aparecer na direita da tela
 				//position.x = this->getBoundingBox().getMaxX() + shadows.at(i)->getBoundingBox().size.width / 2;
+				ocas[rand() % 4]->setColor(Color3B::GRAY);
+				shadows.at(i)->removeFromParentAndCleanup(true);
+				shadows.erase(i);
 			}
 			else {//Ainda esta na tela, ir pra esquerda
 				position.x -= 50 * delta;
@@ -197,11 +193,10 @@ void Batalha::SpawnEnemies(){
 
 		float randY = rand() % 100 + (-100);
 		shadows.pushBack(Sprite::create("shadow.png"));
-
-		shadows.at(shadows.size() - 1)->setPosition(Vec2(visibleSize.width / 1.5 + origin.x, visibleSize.height / 2 + randY));
-		shadows.at(shadows.size() - 1)->setScale(visibleSize.width*.0008, visibleSize.height*.001);
+		shadows.at(shadows.size() - 1)->setPosition(Vec2(visibleSize.width * 1.5 + origin.x, visibleSize.height / 2 + randY));
+		shadows.at(shadows.size() - 1)->setScale(visibleSize.width*.0004, visibleSize.height*.0005);
         this->getChildByName("rootNode")->getChildByName("ScrollView_1")->addChild(shadows.at(shadows.size() - 1), shadows.size() + 3);
-		spawnTimer = 1;
+		spawnTimer = 4;
 	}
 }
 
@@ -236,6 +231,19 @@ void Batalha::ChangeScene(int id) {
 		isChangingScene = true;
     }
     
+}
+
+void Batalha::ConfigOcas(){
+	//ocas = new cocos2d::ui::Button();
+	for (int i = 0; i < 4; i++){
+		ocas[i] = static_cast<cocos2d::ui::Button*>(this->getChildByName("rootNode")->getChildByName("ScrollView_1")->getChildByName("Oca" + std::to_string(i + 1)));
+		if (ocas[i])
+		{
+			ocas[i]->addClickEventListener([=](Ref *){
+				ocas[i]->setColor(cocos2d::Color3B::WHITE);
+			});
+		}
+	}
 }
 
 #pragma mark -
