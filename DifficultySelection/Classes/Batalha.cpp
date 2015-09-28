@@ -38,7 +38,11 @@ bool Batalha::init()
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
     
+	//--------------------------CONFIGURACAO DAS OCAS
 	ConfigOcas();
+	//--------------------------CONFIGURACAO DA VIDA
+	ConfigVida();
+
 
     auto totemAzul = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("BtnsBatalha")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("TotemAzul"));
 	auto magiaFogo = static_cast< cocos2d::ui::Button*>(rootNode->getChildByName("ScrollView_1")->getChildByName("BtnsBatalha")->getChildByName("BottomBar")->getChildByName("Pc_Bg_4")->getChildByName("MagiaFogo"));
@@ -159,9 +163,9 @@ void Batalha::update(float delta){
 	//if (JOGANDO)
 	//{
 		SpawnEnemies();
-
+		DiminuirVida(delta);
 		int count = 0;
-
+		//-------------------------------------MOVER SOMBRAS------------------
 		for (int i = 0; i < shadows.size(); i++) {
 			auto position = shadows.at(i)->getPosition();
 
@@ -169,9 +173,7 @@ void Batalha::update(float delta){
 				//Ele saiu da tela, deve ir pra outra(e dominar uma casinha)
 				//A linha abaixo faz ele aparecer na direita da tela
 				//position.x = this->getBoundingBox().getMaxX() + shadows.at(i)->getBoundingBox().size.width / 2;
-				ocas[rand() % 4]->setColor(Color3B::GRAY);
-				shadows.at(i)->removeFromParentAndCleanup(true);
-				shadows.erase(i);
+				DominarOca(i);
 			}
 			else {//Ainda esta na tela, ir pra esquerda
 				position.x -= 50 * delta;
@@ -180,10 +182,35 @@ void Batalha::update(float delta){
 
 			count++;
 		}
-		if (isChangingScene){
-			MoveCameraTo(delta);
-		}
+		//---------------------------------------FIM MOVER SOMBRAS--------------
 	//}
+}
+
+void Batalha::DiminuirVida(float delta){
+	if (malEspiriTotal > 0){
+		vida -= delta*malEspiriTotal;
+		if (vida < 0){
+			vida = 0;
+			auto scene = HelloWorld::createScene();
+			Director::getInstance()->replaceScene(TransitionFade::create(0.7, scene, Color3B(0, 0, 0)));
+		}
+		vidaTxt->setText(std::to_string((int)vida)+"/100");
+		vidaBar->setPercent(vida);
+	}
+}
+
+void Batalha::DominarOca(int i){
+	float fatorEscurecimento = 100.0f;
+	int randOca = rand() % 4;
+	estadOcas[randOca]++;
+	malEspiriTotal++;
+	Color3B corAtual = ocas[randOca]->getColor();
+	corAtual.r = corAtual.r <= 55 ? 0 : corAtual.r - fatorEscurecimento;
+	corAtual.g = corAtual.r;
+	corAtual.b = corAtual.r;
+	ocas[randOca]->setColor(corAtual);
+	shadows.at(i)->removeFromParentAndCleanup(true);
+	shadows.erase(i);
 }
 
 void Batalha::SpawnEnemies(){
@@ -200,50 +227,33 @@ void Batalha::SpawnEnemies(){
 	}
 }
 
-void Batalha::MoveCameraTo(float dt){
-	if (isChangingScene && cenaAtual == 1 && movePosition.x > this->getPosition().x){
-		this->setPosition(Vec2(this->getPosition().x + dt*400, this->getPosition().y));
-	}
-	else if (cenaAtual == 1 && isChangingScene){
-		isChangingScene = false;
-		cenaAtual = 0;
-	}
-	if (isChangingScene && cenaAtual == 0 && movePosition.x < this->getPosition().x){
-		this->setPosition(Vec2(this->getPosition().x - dt*400, this->getPosition().y));
-	}
-	else if (cenaAtual == 0 && isChangingScene){
-		isChangingScene = false;
-		cenaAtual = 1;
-	}
-}
-
-void Batalha::ChangeScene(int id) {
-
-    if (id == 0) {
-        //this->setPosition(Vec2(Director::getInstance()->getVisibleSize().width / Director::getInstance()->getVisibleSize().width/2, this->getPosition().y));
-		movePosition = Vec2(Director::getInstance()->getVisibleSize().width / Director::getInstance()->getVisibleSize().width / 2, this->getPosition().y);
-		isChangingScene = true;
-    }
-    
-    else {
-        //this->setPosition(Vec2(Director::getInstance()->getVisibleSize().width, this->getPosition().y));
-		movePosition = Vec2(Director::getInstance()->getVisibleSize().width, this->getPosition().y);
-		isChangingScene = true;
-    }
-    
-}
-
 void Batalha::ConfigOcas(){
 	//ocas = new cocos2d::ui::Button();
+	estadOcas[0] = estadOcas[1] = estadOcas[2] = estadOcas[3] = 0;
 	for (int i = 0; i < 4; i++){
 		ocas[i] = static_cast<cocos2d::ui::Button*>(this->getChildByName("rootNode")->getChildByName("ScrollView_1")->getChildByName("Oca" + std::to_string(i + 1)));
 		if (ocas[i])
 		{
 			ocas[i]->addClickEventListener([=](Ref *){
-				ocas[i]->setColor(cocos2d::Color3B::WHITE);
+				if (estadOcas[i] > 0){
+					Color3B corAtual = ocas[i]->getColor();
+					corAtual.r = corAtual.r >= 200 ? 255 : corAtual.r + 100;
+					corAtual.g = corAtual.r;
+					corAtual.b = corAtual.r;
+					ocas[i]->setColor(corAtual);
+
+					estadOcas[i]--;
+					malEspiriTotal--;
+				}
 			});
 		}
 	}
+}
+
+void Batalha::ConfigVida(){
+	vidaTxt = static_cast< cocos2d::ui::Text*>(this->getChildByName("rootNode")->getChildByName("ScrollView_1")->getChildByName("ProjectNode_1")->getChildByName("TopBar")->getChildByName("PvpenergyPanel_22")->getChildByName("EnergyCount_16"));
+	vidaBar = static_cast<cocos2d::ui::LoadingBar*>(this->getChildByName("rootNode")->getChildByName("ScrollView_1")->getChildByName("ProjectNode_1")->getChildByName("TopBar")->getChildByName("PvpenergyPanel_22")->getChildByName("Bar_Energy_4"));
+	vidaTxt->setText(std::to_string((int)vida)+"/100");
 }
 
 #pragma mark -
@@ -331,12 +341,10 @@ void Batalha::onKeyPressed(EventKeyboard::KeyCode keyCode, Event *event)
 	switch (keyCode) {
 	case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
 		//player->setPosition(Vec2(player->getPositionX() + 2, player->getPositionY()));
-		Batalha::ChangeScene(0);
 		break;
 
 	case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
 		//player->setPosition(Vec2(player->getPositionX() - 2, player->getPositionY()));
-		Batalha::ChangeScene(1);
 		break;
 	}
 }

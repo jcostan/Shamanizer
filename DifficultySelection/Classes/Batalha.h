@@ -37,19 +37,25 @@ public:
 private:
 	const static int MAX_TOUCHES = 5;
 	float spawnTimer = 2;
-	void ChangeScene(int id);
-	Scene *VilaScene;
-	Scene *BatalhaScene;
-	void MoveCameraTo(float dt);
-	Vec2 movePosition;
-	bool isChangingScene = false;
-	int cenaAtual = 0;//0 - Batalha, 1 - Vila
+
     int initialPosiTouch[2];
     int currentPosiTouch[2];
     bool isTouchDown = false;
+	//Node* rootNode;
+
+	//---OCAS
 	void ConfigOcas();
 	ui::Button* ocas[4];
-    //Node* rootNode;
+	int estadOcas[4];
+	int malEspiriTotal = 0;
+	void DominarOca(int i);
+
+	//---VIDA
+	void ConfigVida();
+	ui::Text* vidaTxt;
+	ui::LoadingBar* vidaBar;
+	float vida = 100;
+	void DiminuirVida(float delta);
 
 protected:
 	Label* labelTouchLocations[MAX_TOUCHES];
@@ -63,6 +69,7 @@ protected:
     Sprite *magia1;
 
 	Vector<Sprite*> shadows;
+
 
 	Vector<Sprite*> brushs;
 
